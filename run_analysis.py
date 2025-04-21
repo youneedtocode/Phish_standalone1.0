@@ -604,5 +604,27 @@ def main(wsl, case, mail_to):
 	else:
 		log.info("Skipping terminate_analysis since TheHive integration is disabled.")
 		verdict = "Standalone verdict placeholder"  # Replace or customize as needed
+    # Save verdict to MongoDB
+    try:
+        from pymongo import MongoClient
+        import datetime
+
+        client = MongoClient("mongodb://localhost:27017/")
+        db = client["thephish"]
+        verdict_collection = db["verdicts"]
+
+        verdict_data = {
+            "mail_to": mail_to,
+            "verdict": verdict,
+            "observables": observables_info,
+            "reports": reports_observables,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+
+        verdict_collection.insert_one(verdict_data)
+        log.info("Verdict successfully saved to MongoDB.")
+    except Exception as e:
+        log.error("Failed to save verdict to MongoDB: {}".format(traceback.format_exc()))
+        wsl.emit_error("Failed to save verdict to MongoDB.")
 
 	return verdict

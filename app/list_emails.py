@@ -26,7 +26,9 @@ def connect_to_IMAP_server():
 def retrieve_emails(connection):
 	# Read all the unseen email from this folder
 	connection.select(config['imapFolder'])
-	typ, dat = connection.search(None, '(UNSEEN)')
+	typ, dat = connection.search(None, 'ALL')
+	print("DEBUG: IMAP search returned:", dat)
+
 	# The dat[0] variable contains the IDs of all the unread emails
 	# The IDs are obtained by using the split function and the length of the array is the number of unread emails
 	new_emails = len(dat[0].split())

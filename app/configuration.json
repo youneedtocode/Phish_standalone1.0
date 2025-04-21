@@ -2,8 +2,8 @@
 	"imap" : {
 		"host" : "imap.gmail.com",
 		"port" : "993",
-		"user" : "",
-		"password" : "",
+		"user" : "fishisfrusted@gmail.com",
+		"password" : "atundlrdlgjnksdx",
 		"folder" : "inbox"
 	},
 	"thehive" : {

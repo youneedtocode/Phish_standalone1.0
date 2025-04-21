@@ -19,7 +19,7 @@ eventlet==0.31.1
 Flask==2.0.1
 Flask-SocketIO==5.1.1
 future==0.18.2
-greenlet==1.1.1
+greenlet
 hypothesis==6.15.0
 idna==3.2
 inflect==5.3.0

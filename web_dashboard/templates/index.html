@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThePhish Verdicts Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+            cursor: pointer;
+        }
+        .verdict-phishing {
+            background-color: #ff4d4d; /* Red for phishing */
+            color: white;
+        }
+        .verdict-suspicious {
+            background-color: #ffbf00; /* Orange for suspicious */
+            color: white;
+        }
+        .verdict-safe {
+            background-color: #28a745; /* Green for safe */
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>ThePhish Verdicts Dashboard</h1>
+
+    <table id="verdictsTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">Subject</th>
+                <th onclick="sortTable(1)">From</th>
+                <th onclick="sortTable(2)">Email To</th>
+                <th onclick="sortTable(3)">Verdict</th>
+                <th onclick="sortTable(4)">Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for verdict in verdicts %}
+            <tr>
+                <td>{{ verdict.subject }}</td>
+                <td>{{ verdict.from }}</td>
+                <td>{{ verdict.mail_to }}</td>
+                <td class="{% if verdict.verdict == 'phishing' %}verdict-phishing{% elif verdict.verdict == 'suspicious' %}verdict-suspicious{% else %}verdict-safe{% endif %}">
+                    {{ verdict.verdict }}
+                </td>
+                <td>{{ verdict.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("verdictsTable");
+            switching = true;
+            dir = "asc"; // Set the sorting direction to ascending
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
