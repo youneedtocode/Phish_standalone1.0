@@ -491,7 +491,7 @@ def terminate_analysis(case, task_id, mail_to, observables_info, reports_observa
 # Main function called from outside 
 # The wsl is not a global variable to support multiple tabs 
 # The mail_to parameter is the email address of the user to send notifications to
-def main(wsl, case, mail_to):
+def main(wsl, case, external_from_field):
 	print("✅ Starting run_analysis.py...")
 	print(f"➡️ Arguments received: {sys.argv}")
 	thehive_enabled = os.environ.get("THEHIVE_ENABLED", "False").lower() == "true"
@@ -605,4 +605,24 @@ def main(wsl, case, mail_to):
 		log.info("Skipping terminate_analysis since TheHive integration is disabled.")
 		verdict = "Standalone verdict placeholder"  # Replace or customize as needed
 
+	# ✅ Save verdict to MongoDB
+	from pymongo import MongoClient
+	from datetime import datetime
+
+	try:
+		client = MongoClient('mongodb://localhost:27017/')
+		db = client['thephish']
+		verdicts_collection = db['verdicts']
+		
+		verdict_doc = {
+			"mail_to": external_from_field if external_from_field else "unknown",
+			"verdict": verdict,
+			"timestamp": datetime.utcnow()
+		}
+		verdicts_collection.insert_one(verdict_doc)
+		log.info("Verdict successfully saved to MongoDB")
+	except Exception as e:
+		log.error(f"Failed to store verdict in MongoDB: {str(e)}")
+
 	return verdict
+

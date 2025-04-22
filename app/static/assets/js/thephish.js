@@ -11,7 +11,6 @@ let go_back_link = document.getElementById("goBackLink");
 let log_text = document.getElementById("logText");
 let log_text_par = log_text.getElementsByTagName("p")[0]
 
-
 // Obtain the socket object
 // Automatically start a connection to window.location
 const socket = io();
@@ -158,45 +157,40 @@ function list_emails(){
 	xhr.send(null);
 }
 
-
 // Function called when the "Analyze" button is clicked for an email
-// The button node is used to obtain the index of the table row on which the button has been clicked
 function analyze_email(thisBtn){
-
 	let index = thisBtn.parentNode.parentNode.rowIndex;
 	let uid_field = data_table.tBodies[0].rows[index-1].cells[0].innerHTML;
-	
-	// Modify the DOM to show the progress bar and the div used to show the logs
 	list_mails_btn.classList.add("d-none");
 	div_data_table.classList.add("d-none");
 	progress_bar.classList.remove("d-none");
 	progress_bar.firstElementChild.classList.add("progress-bar-animated");
 	progress_bar.firstElementChild.innerHTML = "<strong>Analyzing...</strong>";
 	log_text.classList.remove("d-none")
-	// Prepare the AJAX POST request to the path /analysis
 	let xhr = new XMLHttpRequest();
 	xhr.open('POST', 'analysis', true);
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	// Function called when the response is available
 	xhr.onreadystatechange = function() {
 		if(xhr.readyState == 4) {
 			if(xhr.status == 200) {
 				let response = JSON.parse(xhr.responseText);
 				if (response == null){
-					// Handle errors during the execution
 					showAlert("error");
 					progress_bar.firstElementChild.classList.remove("bg-info");
 					progress_bar.firstElementChild.classList.add("bg-danger");
 					progress_bar.firstElementChild.classList.remove("progress-bar-animated");
 					progress_bar.firstElementChild.innerHTML="<strong>Error</strong>";
 				} else {
-					// Modify the DOM to show the result
 					card_body_table_res.classList.remove("d-none");
 					progress_bar.firstElementChild.classList.remove("bg-info");
 					progress_bar.firstElementChild.classList.add("bg-success");
 					progress_bar.firstElementChild.classList.remove("progress-bar-animated");
 					progress_bar.firstElementChild.innerHTML="<strong>Success</strong>";
 					go_back_link.classList.remove("d-none");
+
+					// ✅ Added line to redirect
+					window.location.href = "/verdicts";
+
 					if (response == "Safe"){
 						div_result.getElementsByTagName("p")[0].style.background="rgba(0,166,90,255)";
 						div_result.getElementsByTagName("p")[0].innerHTML="<strong>SAFE</strong>";
@@ -214,7 +208,6 @@ function analyze_email(thisBtn){
 				}
 			}
 			else {
-				// Handle errors during the execution
 				showAlert("error");
 				progress_bar.firstElementChild.classList.remove("bg-info");
 				progress_bar.firstElementChild.classList.add("bg-danger");
@@ -223,6 +216,6 @@ function analyze_email(thisBtn){
 			}
 		}
 	};
-	// Send the request with the SID and the UID of the email
 	xhr.send("sid=" + socket.id + "&mailUID=" + uid_field);
-} 
+}
+
