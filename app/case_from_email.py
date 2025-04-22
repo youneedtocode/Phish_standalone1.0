@@ -173,10 +173,19 @@ def obtain_eml(connection, mail_uid, wsl):
 
 # Parse the EML file and extract the observables
 def parse_eml(internal_msg, wsl):
+    if not internal_msg:
+        log.error("parse_eml received None as internal_msg.")
+        wsl.emit_error("No internal message content found for parsing.")
+        return "(No Subject)", {}, [], [], [], None
+
 
     # Obtain the subject of the internal email
     # This is not straightforward since the subject might be splitted in two or more parts
-    decode_subj = email.header.decode_header(internal_msg['Subject'])
+    subject_raw = internal_msg['Subject']
+    if subject_raw is None:
+        subject_raw = "(No Subject)"
+    decode_subj = email.header.decode_header(subject_raw)
+
     decoded_elements_subj = []
     for decode_elem in decode_subj:
         if decode_elem[1] is not None:
@@ -520,7 +529,12 @@ def main(wsl, mail_uid):
 
     # Call the obtain_eml function
     try:
-        internal_msg, external_from_field = obtain_eml(connection, mail_uid, wsl)
+        result = obtain_eml(connection, mail_uid, wsl)
+        if not result:
+            log.error("No internal EML message found.")
+            wsl.emit_error("No internal EML message found.")
+            return
+        internal_msg, external_from_field = result
     except Exception as e:
         log.error("Error while trying to obtain the internal eml file: {}".format(traceback.format_exc()))
         wsl.emit_error("Error while trying to obtain the internal eml file")
