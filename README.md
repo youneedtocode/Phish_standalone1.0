@@ -1,136 +1,151 @@
-# ThePhish Standalone 1.0 🐟
+# 🐟 ThePhish - Standalone Edition
 
-> 📅 Last updated: April 21, 2025
-
-A modified standalone version of [ThePhish](https://github.com/emalderson/ThePhish) tailored to:
-- ❌ Work without TheHive, Cortex, or MISP
-- ✅ Perform phishing analysis using local heuristics
-- 🧠 Store verdicts in MongoDB
-- 🌐 Display results via a custom Flask web dashboard
+This is a **standalone version** of [ThePhish](https://github.com/emalderson/ThePhish) that works without TheHive, Cortex, MISP, or Cassandra. It fetches emails, performs phishing analysis using heuristics and stores verdicts in MongoDB, and displays results on a built-in dashboard.
 
 ---
 
-## 🧰 Prerequisites
+## ✅ Key Features
 
-| Component     | Version       |
-|---------------|---------------|
-| Python        | 3.10.17       |
-| MongoDB       | 4.4 (systemd) |
-| OS            | Ubuntu 20.04  |
+- Connects to your Gmail inbox using IMAP
+- Parses `.eml` attachments or full emails directly
+- Performs local phishing detection
+- Displays analysis logs live in the browser via WebSockets
+- Saves verdicts to MongoDB
+- Simple `/verdicts` dashboard to view all verdicts
+- No need for external integrations (TheHive, Cortex, MISP)
 
 ---
 
-## 📦 Installation Steps
+## ⚙️ Requirements
 
-### 1. Clone this Repository
+- Python 3.10
+- MongoDB 4.4
+- A Gmail account (IMAP enabled + App Password)
+- The following Python packages (already included in `requirements.txt`):
+
+```
+flask
+eventlet
+flask_socketio
+pymongo
+email
+ioc-fanger==3.3.0
+ioc-finder==6.0.1
+```
+
+---
+
+## 📁 Project Structure
+
+```
+ThePhish/
+│
+├── app/
+│   ├── thephish_app.py          # Main web app
+│   ├── run_analysis.py          # Phishing logic + MongoDB logging
+│   ├── list_emails.py           # Fetches emails from Gmail
+│   ├── case_from_email.py       # Extracts .eml + metadata
+│   ├── requirements.txt
+│   └── templates/
+│       ├── index.html           # Main dashboard UI
+│       └── verdicts.html        # Verdicts table
+│
+├── static/assets/js/thephish.js # JavaScript to handle UI interaction
+├── README.md
+└── ...
+```
+
+---
+
+## 🚀 Setup Instructions
+
+### 1. Clone this repository
 
 ```bash
 git clone https://github.com/youneedtocode/Phish_standalone1.0.git
 cd Phish_standalone1.0
 ```
 
-### 2. Set Up Python Virtual Environment for Main App
+### 2. Create and activate a virtual environment
 
 ```bash
-cd app
-python3 -m venv venv
+python3.10 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
 ```
 
-### 3. Configure Email in `configuration.json`
-
-Edit the file `app/configuration.json`:
-```json
-"email": {
-  "server": "imap.gmail.com",
-  "port": 993,
-  "username": "your_email@gmail.com",
-  "password": "your_app_password"
-}
-```
-
----
-
-## 🚀 Running ThePhish App
+### 3. Install Python dependencies
 
 ```bash
-cd ~/ThePhish/app
-source venv/bin/activate
-python thephish_app.py
+pip install -r app/requirements.txt
 ```
 
-Open your browser at: [http://127.0.0.1:8080](http://127.0.0.1:8080)
+### 4. Configure `configuration.json`
 
----
+In `app/`, edit `configuration.json` and set:
 
-## 💾 MongoDB Setup
+- Your Gmail IMAP server and port
+- Your Gmail address and app password
 
-MongoDB should be running as a local service:
+### 5. Start MongoDB
+
+Make sure MongoDB is running:
 
 ```bash
 sudo systemctl start mongod
 ```
 
-Check its status:
+---
+
+## 🖥️ Web Dashboard
+
+Once the app is running, open:
+
+```
+http://localhost:8080
+```
+
+From there:
+
+- Click **"List Emails"** to fetch new emails
+- Click **"Analyze"** to analyze an email
+- You will be **automatically redirected to `/verdicts`**, showing verdicts stored in MongoDB.
+
+### Verdict Dashboard
+
+Accessible at:
+
+```
+http://localhost:8080/verdicts
+```
+
+It displays verdicts sorted by timestamp from MongoDB.
+
+---
+
+## ❌ Removed Components
+
+The following are **NOT used** in this version:
+
+- `web_dashboard/` (custom dashboard – now removed)
+- TheHive / Cortex / MISP integrations
+- Docker / Cassandra setup
+
+---
+
+## 📦 Git Commands to Push Changes
 
 ```bash
-sudo systemctl status mongod
-```
-
-Verdicts are saved in the following collection:
-- Database: `thephish`
-- Collection: `verdicts`
-
----
-
-## 📊 Running the Custom Web Dashboard
-
-### 1. Set up environment
-
-```bash
-cd ~/ThePhish/web_dashboard
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 2. Run the dashboard
-
-```bash
-python3 dashboard.py
-```
-
-Open in browser: [http://127.0.0.1:5000](http://127.0.0.1:5000)
-
----
-
-## 🛠️ File Structure
-
-```
-ThePhish/
-├── app/                    # Core app files
-│   ├── thephish_app.py
-│   ├── run_analysis.py
-│   └── configuration.json
-├── web_dashboard/          # Custom dashboard
-│   ├── dashboard.py
-│   └── templates/
-├── README.md               # This file
+git add .
+git commit -m "Updated README and removed web_dashboard references"
+git push origin main
 ```
 
 ---
 
-## ✅ Features Summary
+## 🧠 Author & Acknowledgments
 
-- Email analysis via IMAP (EML attachments)
-- Phishing detection using local rules
-- Verdicts saved in MongoDB
-- Dashboard for viewing analysis results
-- Entirely self-contained (no external integrations required)
+Forked and modified by **youneedtocode** based on [emalderson's ThePhish](https://github.com/emalderson/ThePhish)
+
+Maintained and improved for educational phishing detection analysis purposes.
 
 ---
-
-## 👨‍💻 Maintainer
-
-Made by **[@youneedtocode](https://github.com/youneedtocode)** — customized for standalone use.
-
